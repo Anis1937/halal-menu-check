@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Halal Menu Check - standalone edition, built 2026-10-07. Open this file in any browser; it loads the live canteen menu. -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Halal Menu Check</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥗</text></svg>" />
+  <style>
+:root {
+  --bg: #f5f7f6;
+  --card: #ffffff;
+  --text: #1d2a26;
+  --muted: #66756f;
+  --border: #e3e9e6;
+  --accent: #0f8a5f;
+  --green: #16a34a;
+  --green-bg: #e8f7ee;
+  --orange: #d97706;
+  --orange-bg: #fff4e0;
+  --red: #dc2626;
+  --red-bg: #fdecec;
+  --grey: #8a958f;
+  --grey-bg: #eef1ef;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.05);
+  --radius: 14px;
+}
+[data-theme="dark"] {
+  --bg: #0f1513;
+  --card: #18211e;
+  --text: #e6eeea;
+  --muted: #93a39c;
+  --border: #26322e;
+  --accent: #34d399;
+  --green-bg: #12301f;
+  --orange-bg: #33260f;
+  --red-bg: #3a1616;
+  --grey-bg: #222b28;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.3);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.45 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+}
+main { max-width: 1240px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 20px; margin: 0; }
+h2 { font-size: 16px; margin: 0 0 12px; }
+a { color: var(--accent); }
+.muted { color: var(--muted); }
+
+.topbar {
+  position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; flex-wrap: wrap; padding: 10px 20px; background: var(--card); border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; gap: 10px; align-items: center; }
+.logo { font-size: 30px; }
+.sub { font-size: 13px; text-decoration: none; }
+.controls { display: flex; gap: 10px; align-items: center; }
+.ctl { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+select, input[type=search] {
+  background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 7px 10px; font: inherit;
+}
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.seg button { border: 0; background: transparent; color: var(--text); padding: 7px 10px; cursor: pointer; font-weight: 600; }
+.seg button.active { background: var(--accent); color: #fff; }
+.icon-btn, .pill-btn {
+  border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 10px;
+  padding: 7px 12px; cursor: pointer; font: inherit;
+}
+.icon-btn:hover, .pill-btn:hover { border-color: var(--accent); }
+.pill-btn { border-radius: 999px; font-weight: 600; }
+.pill-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pill-btn.ghost { background: transparent; }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+
+.weekbar { display: flex; align-items: center; gap: 10px; margin: 6px 0 12px; }
+.weektitle { display: flex; flex-direction: column; flex: 1; text-align: center; }
+.weektitle span { color: var(--muted); font-size: 13px; }
+
+.daytabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.daytab {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; cursor: pointer;
+  text-align: left; color: var(--text); font: inherit; position: relative;
+}
+.daytab.active { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.daytab .d { font-weight: 700; }
+.daytab .dt { color: var(--muted); font-size: 12px; }
+.daytab .bar { display: flex; height: 6px; border-radius: 4px; overflow: hidden; margin-top: 6px; background: var(--grey-bg); }
+.daytab .today-dot { position: absolute; top: 8px; right: 10px; font-size: 11px; color: var(--accent); font-weight: 700; }
+.daytab .fav-dot { position: absolute; bottom: 14px; right: 10px; font-size: 11px; }
+.seg-green { background: var(--green); } .seg-orange { background: var(--orange); } .seg-red { background: var(--red); } .seg-grey { background: var(--grey); }
+
+.hero { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; margin-bottom: 14px; }
+.hero .big { font-size: 28px; font-weight: 800; line-height: 1.15; }
+.hero .big .n { color: var(--green); }
+.hero .counts { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+.count { padding: 6px 10px; border-radius: 10px; font-weight: 600; font-size: 13px; }
+.count.green { background: var(--green-bg); color: var(--green); }
+.count.orange { background: var(--orange-bg); color: var(--orange); }
+.count.red { background: var(--red-bg); color: var(--red); }
+.count.grey { background: var(--grey-bg); color: var(--grey); }
+.hero .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.best { border-radius: 12px; background: var(--green-bg); padding: 12px; display: flex; gap: 12px; align-items: center; }
+.best img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; flex: none; }
+.best .lbl { font-size: 12px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .04em; }
+.best .nm { font-weight: 700; }
+.best .why { font-size: 12px; color: var(--muted); }
+
+.toolbar { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+.toolbar-right { display: flex; gap: 10px; align-items: center; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 999px; padding: 6px 12px; cursor: pointer; font: inherit; font-size: 13px; }
+.chip.active { background: var(--text); color: var(--card); border-color: var(--text); }
+.toggle { font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+
+.status { color: var(--muted); margin: 8px 0; }
+.status.error { color: var(--red); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.dish { display: flex; flex-direction: column; overflow: hidden; padding: 0; border-left: 6px solid var(--grey); }
+.dish.green { border-left-color: var(--green); } .dish.orange { border-left-color: var(--orange); }
+.dish.red { border-left-color: var(--red); } .dish.grey { border-left-color: var(--grey); }
+.dish.red .photo, .dish.red .name { opacity: .75; }
+.dish .top { display: flex; gap: 12px; padding: 14px 14px 8px; }
+.dish .photo { width: 92px; height: 92px; border-radius: 10px; object-fit: cover; flex: none; background: var(--grey-bg); display: flex; align-items: center; justify-content: center; font-size: 34px; }
+.dish .meta { flex: 1; min-width: 0; }
+.dish .cat { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; display: flex; justify-content: space-between; gap: 6px; }
+.dish .name { font-weight: 650; margin: 2px 0 6px; }
+.dish .alt { font-size: 12px; color: var(--muted); margin-top: -4px; margin-bottom: 6px; }
+.pill { display: inline-flex; gap: 4px; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.pill.green { background: var(--green-bg); color: var(--green); } .pill.orange { background: var(--orange-bg); color: var(--orange); }
+.pill.red { background: var(--red-bg); color: var(--red); } .pill.grey { background: var(--grey-bg); color: var(--grey); }
+.badge { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 6px; margin-left: 4px; }
+.badge.best-b { background: #fde68a; color: #7c5800; } .badge.sold { background: var(--grey-bg); color: var(--muted); }
+.findings { list-style: none; margin: 0; padding: 0 14px 6px; font-size: 13px; }
+.findings li { padding: 3px 0; display: flex; gap: 6px; }
+.findings .haram { color: var(--red); } .findings .doubtful { color: var(--orange); }
+.findings .caution { color: var(--muted); } .findings .ok { color: var(--green); }
+.dish .foot { margin-top: auto; padding: 8px 14px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag { background: var(--grey-bg); border-radius: 6px; padding: 2px 6px; font-size: 11px; }
+.allergen { display: inline-block; min-width: 18px; text-align: center; border: 1px solid var(--border); border-radius: 5px; padding: 0 4px; margin-right: 2px; font-size: 11px; cursor: help; }
+.fav { background: none; border: 0; font-size: 18px; cursor: pointer; padding: 0; line-height: 1; filter: grayscale(1); opacity: .5; }
+.fav.on { filter: none; opacity: 1; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.ov-row { display: grid; grid-template-columns: 110px 1fr 54px; align-items: center; gap: 10px; padding: 5px 0; cursor: pointer; }
+.ov-row:hover .ov-day { color: var(--accent); }
+.ov-bar { display: flex; height: 14px; border-radius: 6px; overflow: hidden; background: var(--grey-bg); }
+.ov-pct { text-align: right; font-weight: 700; font-size: 13px; }
+.trend svg { width: 100%; height: auto; }
+.trend text { fill: var(--muted); font-size: 11px; }
+.legend ul { margin: 0 0 8px; padding-left: 18px; }
+.legend li { margin: 4px 0; }
+.disclaimer { background: var(--orange-bg); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 0; }
+
+dialog { border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--text); max-width: 640px; width: 92vw; }
+dialog::backdrop { background: rgba(0,0,0,.4); }
+dialog li { margin: 8px 0; }
+dialog h3 { font-size: 14px; margin: 16px 0 6px; }
+dialog input[type=text], dialog input[type=search] { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 7px 10px; font: inherit; }
+.canteen-results { max-height: 200px; overflow: auto; margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.canteen-results button { text-align: left; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+.canteen-results button:hover { border-color: var(--accent); }
+.canteen-results small { color: var(--muted); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--text); color: var(--card);
+  padding: 10px 16px; border-radius: 10px; opacity: 0; transition: .25s; pointer-events: none; z-index: 50;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.empty { text-align: center; padding: 40px; color: var(--muted); }
+
+@media (max-width: 800px) {
+  .hero, .two-col { grid-template-columns: 1fr; }
+  .daytabs { grid-template-columns: repeat(4, 1fr); }
+  .hero .big { font-size: 22px; }
+}
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🥗</span>
+      <div>
+        <h1>Halal Menu Check</h1>
+        <a id="storeLink" class="sub" target="_blank" rel="noopener">…</a>
+      </div>
+    </div>
+    <div class="controls">
+      <label class="ctl" title="How strictly should dishes be judged?">
+        <span>Mode</span>
+        <select id="mode">
+          <option value="standard">Standard</option>
+          <option value="strict">Strict</option>
+          <option value="relaxed">Relaxed</option>
+        </select>
+      </label>
+      <div class="seg" id="langSeg" title="Dish name language">
+        <button data-lang="en">EN</button><button data-lang="de">DE</button>
+      </div>
+      <button id="themeBtn" class="icon-btn" title="Toggle dark mode">🌙</button>
+      <button id="settingsBtn" class="icon-btn" title="Settings & sharing" hidden>⚙️</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="weekbar">
+      <button id="prevWeek" class="icon-btn" title="Previous week">◀</button>
+      <div class="weektitle"><strong id="weekTitle">…</strong><span id="weekRange"></span></div>
+      <button id="nextWeek" class="icon-btn" title="Next week">▶</button>
+      <button id="todayBtn" class="pill-btn">Today</button>
+    </section>
+
+    <nav id="dayTabs" class="daytabs"></nav>
+
+    <section id="hero" class="hero card"></section>
+
+    <section class="toolbar">
+      <div class="chips" id="filterChips">
+        <button data-filter="all" class="chip active">All</button>
+        <button data-filter="halal" class="chip">✅ Halal-friendly</button>
+        <button data-filter="doubtful" class="chip">⚠️ Doubtful</button>
+        <button data-filter="haram" class="chip">❌ Not halal</button>
+        <button data-filter="fav" class="chip">❤️ Favourites</button>
+      </div>
+      <div class="toolbar-right">
+        <label class="toggle"><input type="checkbox" id="hideNight" /> Hide night menu</label>
+        <input id="search" type="search" placeholder="Search this week…" />
+      </div>
+    </section>
+
+    <div id="status" class="status"></div>
+    <section id="dishes" class="grid"></section>
+
+    <section class="two-col">
+      <div class="card">
+        <h2>📅 This week at a glance</h2>
+        <div id="weekOverview"></div>
+      </div>
+      <div class="card">
+        <h2>📈 Halal-friendly trend</h2>
+        <div id="trend" class="trend"><div class="muted">Loading…</div></div>
+      </div>
+    </section>
+
+    <section class="card legend">
+      <h2>ℹ️ How it works</h2>
+      <ul>
+        <li><b>❌ Not halal</b> – tagged/named pork, sausage, gelatine, alcohol in the name, or the recipe's nutrition data shows notable alcohol (e.g. wine in the sauce).</li>
+        <li><b>⚠️ Doubtful</b> – meat from permissible animals without stated halal slaughter, meat of unspecified animal, meat stock, or traces of alcohol.</li>
+        <li><b>✅ Halal-friendly</b> – vegan, vegetarian or fish with no warning signs.</li>
+        <li><b>Modes:</b> <i>Strict</i> treats every caution (rennet cheese, trace alcohol, non-fish seafood) as doubtful. <i>Relaxed</i> accepts non-certified meat of permissible animals.</li>
+      </ul>
+      <p class="muted" style="font-size:12px">Standalone edition · built 2026-10-07 · runs entirely in your browser, nothing is installed or stored on a server.</p>
+      <p class="disclaimer">⚠️ The canteen does not publish halal certification. This is an automated screening of the published menu data, not a religious ruling. Cross-contamination (shared grills, fryers, utensils) cannot be detected. When in doubt, ask the kitchen staff – use the <b>🗣️ Ask the kitchen</b> button.</p>
+    </section>
+  </main>
+
+  <dialog id="askDialog">
+    <form method="dialog">
+      <h2>🗣️ Ask the kitchen</h2>
+      <p class="muted">Polite questions (in German) for today's doubtful dishes:</p>
+      <ol id="askList"></ol>
+      <div class="dialog-actions">
+        <button type="button" id="copyAsk" class="pill-btn">📋 Copy</button>
+        <button class="pill-btn ghost">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDialog">
+    <form method="dialog">
+      <h2>⚙️ Settings</h2>
+      <h3>📍 Canteen</h3>
+      <p class="muted">Current: <b id="curCanteen"></b></p>
+      <input id="canteenSearch" type="search" placeholder="Search city or canteen, e.g. Villach, Graz…" style="width:100%" />
+      <div id="canteenResults" class="canteen-results"></div>
+      <h3>🚫 Personal avoid list</h3>
+      <p class="muted">Dishes containing these words are marked ❌ (comma separated, e.g. <i>pilz, gorgonzola</i>).</p>
+      <input id="avoidInput" type="text" style="width:100%" />
+      <h3>🔗 Share</h3>
+      <p class="muted" id="shareHint"></p>
+      <div class="dialog-actions">
+        <button type="button" id="copyLink" class="pill-btn" hidden>🔗 Copy link</button>
+        <button type="button" id="saveSettings" class="pill-btn primary">Save</button>
+        <button class="pill-btn ghost">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script>
+/* Halal classification engine – JavaScript port of halalcheck/rules.py.
+ * Regex patterns are injected at build time from the Python module (single source of truth),
+ * and converted so that \b and \w are Unicode-aware like in Python. */
+(function (global) {
+  "use strict";
+  const P = {"regex": {"PORK": "schwein|speck|schinken|salami|\\bbacon|\\bham\\b|\\bpork|prosciutto|pancetta|guanciale|chorizo|debreziner|wei(?:ß|ss)wurst|leberk(?:ä|ae|a)s|kass(?:e)?ler|krainer|mortadella|kabanos|cabanossi|stelze|ripperl|spare\\s?ribs|schmalz|grammel|\\blard|porchetta|serrano(?!\\s*chil)", "PORK_DISH": "carbonara|cordon\\s?bleu|toast\\s?hawaii|frankfurter(?!\\s*gr)|hot\\s?dog", "SAUSAGE": "\\w*(?:w(?:u|ü|ue)rst|sausage)\\w*", "SAUSAGE_SAFE": "rind|beef|gefl(?:ü|ue)gel|poultry|h(?:ü|ue)hner|huhn|chicken|pute|turkey|lamm|lamb|vegan|veggie|vegetar|tofu|soja|soy|plant", "GELATINE": "gelatine|gelatin", "ALCOHOL": "(?<!sch)wein(?!traube|beere|essig|bl(?:ä|ae)tt|stein)|\\bwine\\b(?!\\s*vinegar)|bier(?!garten)|\\bbeer\\b|\\brum\\b|rumtopf|rumrosine|lik(?:ö|oe)r|liqueur|\\bsekt\\b|champagne|prosecco|cognac|brandy|weinbrand|whisk(?:e)?y|wodka|vodka|schnaps|grappa|marsala|sherry|portwein|calvados|amaretto|grand\\s?marnier|cointreau|baileys|riesling|veltliner|chardonnay|merlot|zweigelt|flambiert|flamb(?:é|e)|beschwipst|radler|\\bgin\\b|\\bau\\s+vin\\b|\\bvin\\s+(?:rouge|blanc)\\b", "ALCOHOL_MAYBE": "tiramisu|\\bmirin\\b|\\bsake\\b", "ALCOHOL_HINT": "teriyaki", "GENERIC_MEAT": "fleisch(?!tomate)|\\bmeat(?:ball)?|geschnetzelt|gyros|keba[bp]|d(?:ö|oe|o)ner|burger|frikadelle|fleischlaib|fleischlaberl|faschiert|hackfleisch|\\bhack\\b|minced|\\bleber|\\bliver|nieren|beuschel|kutteln|ćevap|cevap|con\\s?carne|nugget|wings", "OFTEN_PORK": "schnitzel|kotelett|faschiert|fleischlaib|fleischlaberl|\\bbraten|bolognese|ragout|rag(?:ù|u)\\b|gulasch|goulash|lasagne|cevap|ćevap|burger|geschnetzelt|\\bmeat|fleisch(?!tomate)", "BROTH": "rind(?:s)?suppe|rinderbr(?:ü|ue)he|fleischbr(?:ü|ue)he|h(?:ü|ue)hnerbr(?:ü|ue)he|kraftbr(?:ü|ue)he|bouillon|\\bfond\\b|kalbsfond|\\bjus\\b|\\w+jus\\b|bratensaft|bratensauce|demi.?glace|\\bbroth\\b|\\bstock\\b|\\bgravy\\b", "BEEF_BROTH_SOUP": "frittaten|leberkn(?:ö|oe)del|gr(?:ie|ei)(?:ß|ss)nockerl|backerbsen|klare\\s+suppe|consomm(?:é|e)|nudelsuppe|markkn(?:ö|oe)del", "FISH": "fisch|\\bfish|lachs|salmon|barsch|hecht|thunfisch|\\btuna|forelle|trout|kabeljau|\\bcod\\b|dorsch|zander|saibling|karpfen|scholle|seelachs|pangasius|sardine|sardelle|anchov|makrele|mackerel|hering|matjes|tilapia|dorade|branzino|heilbutt|halibut|seeteufel|\\bhake\\b|\\bpike\\b|\\bperch\\b|\\bbass\\b", "SEAFOOD": "garnele|shrimp|prawn|scampi|krabbe|\\bcrab|calamar|tintenfisch|squid|oktopus|octop|muschel|mussel|\\bclam|hummer|lobster|languste|meeresfr(?:ü|ue)chte|seafood|frutti\\s+di\\s+mare|scallop|auster|oyster", "VEG_NAME": "vegan|vegetar|veggie|plant.?based|pflanzlich|planet\\s?!?\\s?based", "RENNET_CHEESE": "parmesan|parmigiano|grana\\s+padano|pecorino|gorgonzola", "HALAL_WORD": "\\bhalal\\b"}, "animals": [["chicken", "huhn|h(?:ü|ue)hn(?!erei)|hendl|henderl|h(?:ä|ae)hnchen|poulet|poulard|chicken|\\bgai\\b|\\bcoq\\b"], ["poultry", "gefl(?:ü|ue)gel|poultry"], ["turkey", "\\bpute|puten|truthahn|turkey"], ["duck/goose", "\\bente\\b|\\benten|\\bduck|\\bgans\\b|g(?:ä|ae)nse|goose"], ["beef/veal", "\\brind|\\bbeef|kalb|\\bveal|steak|tafelspitz|ochsen|beiried|rostbraten"], ["lamb", "lamm|\\blamb(?!'?s\\s+lettuce)|\\bschaf(?!s?k(?:ä|ae)se|milch|joghurt)|mutton|hammel|\\bziege(?!nk(?:ä|ae)se|nfrisch|nmilch)|\\bgoat(?!'?s?\\s+(?:cheese|milk))|\\bkitz\\b"], ["game", "\\bwild(?!\\s*(?:lachs|kr(?:ä|ae)uter|reis|kraut|spargel|obst|beere|fang|garnele|salmon|rice|garlic|herb|berr|mushroom|pilz|caught|catch|fisch|fish))|hirsch|\\breh(?:e|rücken|ragout|keule)?\\b|venison|\\bhasen?\\b|kaninchen|rabbit|gams"]], "tags": {"pork": [10278, 10312], "beef": [10282], "fish": [10313], "vegetarian": [10249, 10279], "vegan": [10280, 10314]}, "seafoodAllergens": [1, 13], "verdicts": {"haram": {"label": "Not halal", "emoji": "❌", "color": "red"}, "doubtful": {"label": "Doubtful", "emoji": "⚠️", "color": "orange"}, "halal": {"label": "Halal-friendly", "emoji": "✅", "color": "green"}, "unknown": {"label": "Unknown", "emoji": "❔", "color": "grey"}}};
+
+  const HARAM = "haram", DOUBTFUL = "doubtful", CAUTION = "caution", OK = "ok";
+  const RANK = { haram: 3, doubtful: 2, caution: 1, ok: 0 };
+  const MODES = ["standard", "strict", "relaxed"];
+  const W = "[\\p{L}\\p{N}_]";
+  const BOUNDARY = `(?:(?<=${W})(?!${W})|(?<!${W})(?=${W}))`;
+
+  function pyRx(src, isGlobal) {
+    const js = src.replace(/\\b/g, BOUNDARY).replace(/\\w/g, W);
+    return new RegExp(js, isGlobal ? "giu" : "iu");
+  }
+  const rx = {}, rxg = {};
+  for (const [k, v] of Object.entries(P.regex)) { rx[k] = pyRx(v); rxg[k] = pyRx(v, true); }
+  const ANIMALS = P.animals.map(([name, src]) => [name, pyRx(src)]);
+  const TAG = Object.fromEntries(Object.entries(P.tags).map(([k, v]) => [k, new Set(v)]));
+
+  const search = (name, s) => rx[name].exec(s);
+  const findAll = (name, s) => [...s.matchAll(rxg[name])];
+  const lowerSet = (ms) => [...new Set(ms.map((m) => m[0].toLowerCase()))].sort();
+  const title = (s) => s.replace(/\p{L}+/gu, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase());
+  const escRx = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const intersects = (set, arr) => arr.some((x) => set.has(x));
+
+  function thresholds(mode) {
+    return mode === "strict" ? [0.15, 0.05, 0.02] : [0.5, 0.15, 0.05];
+  }
+
+  function analyse(nameDe, nameEn = "", tags = [], allergens = [], alcoholPer100 = 0, category = "",
+                   mode = "standard", avoidKeywords = []) {
+    if (!MODES.includes(mode)) mode = "standard";
+    nameDe = nameDe || ""; nameEn = nameEn || ""; tags = tags || []; allergens = allergens || [];
+    const text = `${nameDe} | ${nameEn}`;
+    const dish = (nameDe || nameEn).split("/")[0].replace(/["“”„]/g, "").trim() || (nameDe || nameEn);
+    const findings = [];
+    const tagIds = tags.map((t) => t.Id);
+    const tagNames = tags.map((t) => (t.Name || "") + " " + (t.Label || "")).join(" ").toLowerCase();
+
+    const isVegan = intersects(TAG.vegan, tagIds) || tagNames.includes("vegan");
+    const isVeg = isVegan || intersects(TAG.vegetarian, tagIds) || tagNames.includes("vegetar") || !!search("VEG_NAME", text);
+    const certified = !!search("HALAL_WORD", text) || tagNames.includes("halal");
+
+    const add = (severity, code, msg, ask = null) => {
+      if (mode === "strict" && severity === CAUTION) severity = DOUBTFUL;
+      findings.push({ severity, code, text: msg, ask });
+    };
+    const askKitchen = (q) => q.replace("{dish}", `„${dish}“`);
+
+    if (certified) add(OK, "certified", "Marked as halal by the canteen");
+
+    // ---------- pork ----------
+    const porkTag = intersects(TAG.pork, tagIds) || tagNames.includes("schwein");
+    const porkKw = lowerSet(findAll("PORK", text));
+    const porkDish = lowerSet(findAll("PORK_DISH", text));
+    const unsafeSausages = (s) => new Set(findAll("SAUSAGE", s)
+      .filter((m) => !search("SAUSAGE_SAFE", s.slice(Math.max(0, m.index - 15), m.index + m[0].length)))
+      .map((m) => m[0].toLowerCase()));
+    // The English name is a translation of the German one: if either clarifies the animal, trust it.
+    let sausages = unsafeSausages(nameDe);
+    if (nameEn && search("SAUSAGE", nameEn) && unsafeSausages(nameEn).size === 0) sausages = new Set();
+    if (sausages.size || !nameDe) for (const s of unsafeSausages(nameEn)) sausages.add(s);
+    sausages = [...sausages].sort();
+    if (porkTag) add(HARAM, "pork", "Canteen tag: contains pork");
+    else if (porkKw.length) {
+      const words = porkKw.join(", ");
+      if (isVeg) add(DOUBTFUL, "pork-name", `Name mentions '${words}' but dish is tagged vegetarian - double-check`,
+        askKitchen("Ist in {dish} Schweinefleisch oder Speck enthalten?"));
+      else add(HARAM, "pork", `Pork ingredient in name: ${words}`);
+    } else if (porkDish.length || sausages.length) {
+      const words = porkDish.concat(sausages).join(", ");
+      if (isVeg) add(CAUTION, "pork-name", `'${words}' is classically made with pork - here tagged vegetarian`);
+      else if (sausages.length && !porkDish.length) add(HARAM, "pork", `Sausage (${words}) - in Austria usually made from pork`);
+      else add(HARAM, "pork", `'${words}' is classically made with pork / ham`);
+    }
+
+    // ---------- gelatine ----------
+    if (search("GELATINE", text) && !/rind|beef|halal|agar|vegan/iu.test(text))
+      add(isVeg ? DOUBTFUL : HARAM, "gelatine", "Contains gelatine - usually pork-derived",
+        askKitchen("Welche Gelatine wird für {dish} verwendet (Schwein, Rind oder pflanzlich)?"));
+
+    // ---------- alcohol ----------
+    const alcKw = lowerSet(findAll("ALCOHOL", text));
+    if (alcKw.length) add(HARAM, "alcohol", `Alcohol in name: ${alcKw.join(", ")}`);
+    const maybe = search("ALCOHOL_MAYBE", text);
+    if (maybe) add(DOUBTFUL, "alcohol-maybe", `'${maybe[0]}' is often made with alcohol`, askKitchen("Wird bei {dish} Alkohol verwendet?"));
+    if (search("ALCOHOL_HINT", text)) add(CAUTION, "alcohol-hint", "Teriyaki sauce often contains mirin/sake (rice wine)");
+    const alc = Number(alcoholPer100) || 0;
+    const [h, d, c] = thresholds(mode);
+    const askAlc = askKitchen("Wird bei {dish} Wein oder Alkohol verwendet (z. B. in der Sauce)?");
+    if (alc >= h) add(HARAM, "alcohol-data", `Recipe data: ${alc.toFixed(2)} g alcohol / 100 g - likely cooked with wine or spirits`, askAlc);
+    else if (alc >= d) add(DOUBTFUL, "alcohol-data", `Recipe data: ${alc.toFixed(2)} g alcohol / 100 g - may contain wine`, askAlc);
+    else if (alc >= c) add(CAUTION, "alcohol-trace", `Trace alcohol (${alc.toFixed(2)} g / 100 g) - usually from vinegar or soy sauce`);
+
+    // ---------- meat (permissible animals, slaughter unknown) ----------
+    const animals = ANIMALS.filter(([, r]) => r.test(text)).map(([n]) => n);
+    if ((intersects(TAG.beef, tagIds) || tagNames.includes("rind")) && !animals.includes("beef/veal")) animals.push("beef/veal");
+    const generic = !!search("GENERIC_MEAT", text);
+    const meatSev = mode === "relaxed" ? CAUTION : DOUBTFUL;
+    const fishName = !!search("FISH", text);
+    if (certified) { /* trusted */ }
+    else if (isVeg) {
+      if (animals.length) add(CAUTION, "meat-name", `Name mentions ${animals.join(", ")} but dish is tagged vegetarian`);
+    } else if (animals.length) {
+      add(meatSev, "meat", `Contains ${animals.join(", ")} - halal slaughter not stated`, askKitchen("Ist das Fleisch in {dish} halal geschlachtet?"));
+    } else if (generic || (search("OFTEN_PORK", text) && !porkTag && !porkKw.length && !porkDish.length)) {
+      if (!porkTag && !porkKw.length && !porkDish.length && !fishName && !intersects(TAG.fish, tagIds)) {
+        const m = (search("OFTEN_PORK", text) || search("GENERIC_MEAT", text))[0];
+        add(DOUBTFUL, "meat-unknown", `Meat dish ('${m}') with unspecified animal - could be pork`,
+          askKitchen("Welches Fleisch wird für {dish} verwendet - ist Schweinefleisch enthalten?"));
+      }
+    }
+
+    // ---------- broth / stock ----------
+    if (!isVeg && !porkTag) {
+      const b = search("BROTH", text);
+      if (b) add(!animals.length && !fishName ? DOUBTFUL : CAUTION, "broth", `'${b[0]}' - meat stock may be non-halal`,
+        askKitchen("Wird für {dish} Fleischbrühe, Fond oder Bratensaft verwendet?"));
+      else if ((category || "").toLowerCase().includes("supp") && search("BEEF_BROTH_SOUP", text))
+        add(DOUBTFUL, "broth", "Austrian clear soups are traditionally made with beef broth", askKitchen("Ist die Suppe {dish} auf Rindsuppen-Basis?"));
+    }
+
+    // ---------- fish / seafood ----------
+    if (fishName || intersects(TAG.fish, tagIds)) add(OK, "fish", "Fish - halal by scholarly consensus");
+    if (search("SEAFOOD", text) || allergens.some((a) => P.seafoodAllergens.includes(a)))
+      add(mode === "strict" ? DOUBTFUL : OK, "seafood", "Seafood (non-fish) - accepted by most schools; Hanafi opinions differ");
+
+    // ---------- vegetarian ----------
+    if (isVegan) add(OK, "vegan", intersects(TAG.vegan, tagIds) ? "Vegan (canteen tag)" : "Vegan / plant-based");
+    else if (isVeg) add(OK, "vegetarian", intersects(TAG.vegetarian, tagIds) ? "Vegetarian (canteen tag)" : "Vegetarian / plant-based");
+    const cheese = search("RENNET_CHEESE", text);
+    if (!isVegan && cheese) add(CAUTION, "rennet", `${title(cheese[0])} is traditionally made with animal rennet`,
+      askKitchen("Wird für {dish} Käse mit tierischem Lab verwendet?"));
+
+    // ---------- personal avoid list ----------
+    for (const kw of avoidKeywords || []) {
+      if (kw && new RegExp(escRx(kw), "iu").test(text)) add(HARAM, "personal", `On your personal avoid list: '${kw}'`);
+    }
+
+    // ---------- verdict ----------
+    const worst = findings.reduce((m, f) => Math.max(m, RANK[f.severity]), -1);
+    const verdict = worst === 3 ? "haram" : worst === 2 ? "doubtful" : findings.some((f) => f.severity === OK) ? "halal" : "unknown";
+    findings.sort((a, b) => RANK[b.severity] - RANK[a.severity]);
+    const v = P.verdicts[verdict];
+    return { verdict, label: v.label, emoji: v.emoji, color: v.color, findings, animals };
+  }
+
+  global.HalalRules = { analyse, MODES, VERDICTS: P.verdicts };
+})(window);
+
+</script>
+<script>
+/* Browser data layer for the standalone version – JavaScript port of client.py + service.py.
+ * Exposes window.LocalApi.get(path) mimicking the Python server's /api/* endpoints. */
+(function (global) {
+  "use strict";
+  const QNIPS_API = "https://apps-live-eu.qnips.com/cons/api";
+  const QNIPS_HEADERS = { "App-Brand": "dussmann", "Response-Version": "v3", Authorization: "00781f121c079584d46729b2fa5459fb58" };
+  const FIREBASE_KEY = "AIzaSyBAtCQoHK_j6EkqxOEttRQzQcJF3pHSMMA";
+  const FIRESTORE = "https://firestore.googleapis.com/v1/projects/firebase-dussmann/databases/(default)/documents";
+  const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const DEFAULT_MENU = { id: 18027, store: "INFINEON VILLACH", menu: "INFINEON" };
+
+  // ---------------------------------------------------------------- settings
+  const LS = "hm-share-";
+  const resolved = {}; // names looked up for links that only carry ?menu=ID
+  const settings = {
+    get menu() {
+      const q = new URLSearchParams(location.search);
+      if (q.get("menu")) {
+        const id = Number(q.get("menu"));
+        return { id, store: q.get("store") || resolved[id]?.store || "", menu: q.get("name") || resolved[id]?.menu || "" };
+      }
+      try { return JSON.parse(localStorage.getItem(LS + "menu")) || DEFAULT_MENU; } catch { return DEFAULT_MENU; }
+    },
+    set menu(m) {
+      localStorage.setItem(LS + "menu", JSON.stringify(m));
+      const q = new URLSearchParams(location.search);
+      if (q.has("menu")) { ["menu", "store", "name"].forEach((k) => q.delete(k)); history.replaceState(null, "", "?" + q); }
+    },
+    get avoid() { try { return JSON.parse(localStorage.getItem(LS + "avoid")) || []; } catch { return []; } },
+    set avoid(list) { localStorage.setItem(LS + "avoid", JSON.stringify(list)); },
+  };
+  const portalUrl = (m) => `https://dussmann.cateringportal.io/menu/${encodeURIComponent(m.store)}/${encodeURIComponent(m.menu)}`;
+
+  // ---------------------------------------------------------------- dates
+  const pad = (n) => String(n).padStart(2, "0");
+  const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const parseDate = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d, 12); };
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const weekdayIdx = (d) => (d.getDay() + 6) % 7;
+  function isoWeek(d) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    t.setUTCDate(t.getUTCDate() + 3 - ((t.getUTCDay() + 6) % 7)); // Thursday of this week
+    const year = t.getUTCFullYear();
+    const week = 1 + Math.floor((t - Date.UTC(year, 0, 1)) / 86400000 / 7);
+    return [year, week];
+  }
+
+  // ---------------------------------------------------------------- network
+  let token = null, tokenExp = 0, env = "Release", authPromise = null;
+  const cache = new Map();
+
+  async function getJson(url, opts) {
+    const r = await fetch(url, opts);
+    if (r.status === 404) return null;
+    if (!r.ok) { const e = new Error(`HTTP ${r.status} for ${url.split("?")[0]}`); e.status = r.status; throw e; }
+    return r.json();
+  }
+
+  async function auth(force = false) {
+    if (!force && token && Date.now() < tokenExp - 120000) return token;
+    if (authPromise) return authPromise;
+    authPromise = (async () => {
+      const info = await getJson(`${QNIPS_API}/FirebaseInfo`, { headers: QNIPS_HEADERS });
+      env = info.Environment || "Release";
+      const res = await getJson(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${FIREBASE_KEY}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: info.CustomToken, returnSecureToken: true }),
+      });
+      token = res.idToken; tokenExp = Date.now() + Number(res.expiresIn || 3600) * 1000;
+      return token;
+    })();
+    try { return await authPromise; } finally { authPromise = null; }
+  }
+
+  async function fsGet(path) {
+    const hit = cache.get(path);
+    if (hit && Date.now() - hit.t < 600000) return hit.data;
+    const url = () => `${FIRESTORE}/${env}/${path}`;
+    let data;
+    try { data = await getJson(url(), { headers: { Authorization: "Bearer " + (await auth()) } }); }
+    catch (e) {
+      if (e.status !== 401 && e.status !== 403) throw e;
+      data = await getJson(url(), { headers: { Authorization: "Bearer " + (await auth(true)) } });
+    }
+    cache.set(path, { t: Date.now(), data });
+    return data;
+  }
+
+  function conv(v) {
+    if ("mapValue" in v) return Object.fromEntries(Object.entries(v.mapValue.fields || {}).map(([k, x]) => [k, conv(x)]));
+    if ("arrayValue" in v) return (v.arrayValue.values || []).map(conv);
+    if ("integerValue" in v) return Number(v.integerValue);
+    for (const k of ["stringValue", "booleanValue", "doubleValue", "timestampValue", "referenceValue"]) if (k in v) return v[k];
+    return null;
+  }
+  const doc = (d) => (d ? Object.fromEntries(Object.entries(d.fields || {}).map(([k, x]) => [k, conv(x)])) : null);
+
+  // ---------------------------------------------------------------- service
+  const capitalize = (s) => (s ? s[0].toUpperCase() + s.slice(1).toLowerCase() : s);
+  const clean = (s) => (s || "").split(/\s+/).filter(Boolean).join(" ");
+  const isSoup = (c) => /supp|soup/i.test(c);
+
+  function stats(items) {
+    const seen = new Map();
+    for (const i of items) { const k = i.name_de.toLowerCase(); if (!seen.has(k)) seen.set(k, i.verdict); }
+    const s = { halal: 0, doubtful: 0, haram: 0, unknown: 0 };
+    for (const v of seen.values()) s[v]++;
+    s.total = seen.size;
+    s.halal_pct = s.total ? Math.round((100 * s.halal) / s.total) : 0;
+    return s;
+  }
+
+  function bestPick(items) {
+    const ok = items.filter((i) => i.verdict === "halal" && !i.sold_out && !i.night);
+    if (!ok.length) return null;
+    let pool = ok.filter((i) => !isSoup(i.category));
+    if (!pool.length) pool = ok;
+    const clear = pool.filter((i) => !i.findings.some((f) => f.severity === "caution"));
+    if (clear.length) pool = clear;
+    const best = pool.reduce((a, b) => ((b.protein || 0) > (a.protein || 0) ? b : a));
+    const reason = best.protein ? `Most protein (${Math.round(best.protein)} g)` : "Halal-friendly main dish";
+    return { id: best.id, reason: reason + " among halal-friendly main dishes" };
+  }
+
+  async function weekReport(date, mode, { withEnglish = true } = {}) {
+    const m = settings.menu;
+    const [year, week] = isoWeek(date);
+    const base = `Menus/${m.id}`;
+    const [deRaw, enRaw, metaRaw] = await Promise.all([
+      fsGet(`de-DE/${base}/Years/${year}/Weeks/${week}`),
+      withEnglish ? fsGet(`en-US/${base}/Years/${year}/Weeks/${week}`).catch(() => null) : null,
+      fsGet(`de-DE/${base}`),
+    ]);
+    const monday = addDays(date, -weekdayIdx(date));
+    const head = {
+      store: m.store, menu: m.menu, portal_url: portalUrl(m), year, week, mode,
+      week_start: isoDate(monday), week_end: isoDate(addDays(monday, 6)),
+    };
+    if (!deRaw) return { ...head, missing: true, message: `No menu published for ${year}-W${pad(week)}`, days: [] };
+    const de = doc(deRaw), en = doc(enRaw) || { Days: [] }, meta = doc(metaRaw) || {};
+    const enProducts = new Map(), enCats = new Map();
+    for (const d of en.Days || []) for (const c of d.Categories || []) {
+      enCats.set(c.Id, c.Name);
+      for (const p of c.Products || []) enProducts.set(p.Id, p.Name);
+    }
+    const allergenNames = new Map();
+    for (const a of meta.Allergens || []) if (!allergenNames.has(a.AllergenId)) allergenNames.set(a.AllergenId, { label: a.Label, name: a.Name });
+    const avoid = settings.avoid;
+
+    const days = [];
+    for (const d of [...(de.Days || [])].sort((a, b) => (a.Date || "").localeCompare(b.Date || ""))) {
+      const dayDate = d.Date.slice(0, 10);
+      const items = [];
+      for (const c of d.Categories || []) {
+        if (c.IsHidden) continue;
+        for (const p of c.Products || []) {
+          const nameDe = clean(p.Name), nameEn = clean(enProducts.get(p.Id));
+          const nf = p.NutritionFacts || {};
+          const tags = p.CustomTags || [], allergens = p.Allergens || [];
+          const a = HalalRules.analyse(nameDe, nameEn, tags, allergens, nf.AlcoholPer100 || 0, c.Name || "", mode, avoid);
+          items.push({
+            id: p.Id, category: c.Name || "", category_en: enCats.get(c.Id) || c.Name || "",
+            name_de: nameDe, name_en: nameEn || nameDe,
+            picture: p.PictureUrl || (p.CoverUrls || [])[0] || null, sold_out: !!p.IsSoldOut,
+            tags: [...new Set(tags.filter((t) => t.Name).map((t) => capitalize(t.Name.trim())))].sort(),
+            allergens: allergens.map((x) => allergenNames.get(x) || { label: String(x), name: String(x) }),
+            kcal: nf.KCalPerServing ?? null, protein: nf.ProteinsPerServing ?? null,
+            carbs: nf.CarbsPerServing ?? null, fat: nf.FatsPerServing ?? null,
+            alcohol_per_100: Math.round((nf.AlcoholPer100 || 0) * 1000) / 1000,
+            weight: p.WeightInGrams ?? null, night: (c.Name || "").toLowerCase().includes("nacht"),
+            ...a,
+          });
+        }
+      }
+      if (!items.length) continue;
+      days.push({ date: dayDate, weekday: WEEKDAYS[weekdayIdx(parseDate(dayDate))], items, stats: stats(items), best: bestPick(items) });
+    }
+    return { ...head, days, stats: stats(days.flatMap((d) => d.items)), verdicts: HalalRules.VERDICTS, generated: new Date().toISOString() };
+  }
+
+  async function trend(weeks, mode) {
+    const today = new Date();
+    const monday = addDays(today, -weekdayIdx(today));
+    const dates = Array.from({ length: weeks }, (_, i) => addDays(monday, -7 * (weeks - 1 - i)));
+    return Promise.all(dates.map(async (d) => {
+      const r = await weekReport(d, mode, { withEnglish: false });
+      return r.missing ? { year: r.year, week: r.week, week_start: r.week_start, total: 0, missing: true }
+        : { year: r.year, week: r.week, week_start: r.week_start, ...r.stats };
+    }));
+  }
+
+  let storesCache = null;
+  async function findMenus(query) {
+    if (!storesCache) {
+      const raw = await fsGet("de-DE/StoreMetas?pageSize=300");
+      storesCache = (raw?.documents || []).flatMap((d) => doc(d).Stores || []);
+    }
+    const q = query.trim().toLowerCase();
+    const out = [];
+    for (const s of storesCache) for (const m of s.Menus || []) {
+      if (m.ShowInCateringPortal === false) continue;
+      const hay = `${s.LoyaltyProgramName} ${s.City} ${m.Name}`.toLowerCase();
+      if (!q || hay.includes(q)) out.push({ id: m.Id, store: s.LoyaltyProgramName, menu: m.Name, city: s.City, street: s.Street });
+    }
+    return out.sort((a, b) => (a.store + a.menu).localeCompare(b.store + b.menu));
+  }
+
+  async function get(path) {
+    const url = new URL(path, "http://local");
+    const q = url.searchParams;
+    const mode = HalalRules.MODES.includes(q.get("mode")) ? q.get("mode") : "standard";
+    if (url.pathname === "/api/config") {
+      const m = settings.menu;
+      if (!m.store) { // link with only ?menu=ID: look up the names
+        const hit = (await findMenus("").catch(() => [])).find((x) => x.id === m.id);
+        if (hit) { resolved[m.id] = hit; Object.assign(m, { store: hit.store, menu: hit.menu }); }
+      }
+      return { menu_id: m.id, store_name: m.store, menu_name: m.menu, portal_url: portalUrl(m), default_mode: "standard",
+               today: isoDate(new Date()), avoid_keywords: settings.avoid, standalone: true };
+    }
+    if (url.pathname === "/api/week") return weekReport(q.get("date") ? parseDate(q.get("date")) : new Date(), mode);
+    if (url.pathname === "/api/trend") return trend(Math.max(1, Math.min(26, Number(q.get("weeks")) || 8)), mode);
+    throw new Error("Unknown endpoint " + url.pathname);
+  }
+
+  global.LocalApi = { get, settings, findMenus, isoWeek, portalUrl };
+})(window);
+
+</script>
+<script>
+"use strict";
+
+const $ = (s) => document.querySelector(s);
+const store = {
+  get: (k, d) => { try { const v = localStorage.getItem("hm-" + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set: (k, v) => localStorage.setItem("hm-" + k, JSON.stringify(v)),
+};
+
+const state = {
+  week: null,
+  selected: null,             // ISO date of the selected day
+  filter: "all",
+  search: "",
+  mode: store.get("mode", null),
+  lang: store.get("lang", "en"),
+  hideNight: store.get("hideNight", true),
+  favs: new Set(store.get("favs", [])),
+  today: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })(),
+};
+
+const COLORS = { halal: "green", doubtful: "orange", haram: "red", unknown: "grey" };
+const SEV_ICON = { haram: "⛔", doubtful: "⚠️", caution: "ℹ️", ok: "✔️" };
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const favKey = (i) => i.name_de.toLowerCase().replace(/\s+/g, " ").trim();
+const fmtDay = (iso, opts = { weekday: "short", day: "2-digit", month: "2-digit" }) =>
+  new Date(iso + "T12:00:00").toLocaleDateString("en-GB", opts);
+const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const nameOf = (i) => (state.lang === "de" ? i.name_de : i.name_en || i.name_de);
+const altName = (i) => (state.lang === "de" ? i.name_en : i.name_de);
+const catOf = (i) => (state.lang === "de" ? i.category : i.category_en || i.category);
+
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+async function api(path) {
+  if (window.LocalApi) return window.LocalApi.get(path); // standalone version: everything runs in the browser
+  const r = await fetch(path);
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+// ---------------------------------------------------------------- loading
+async function loadWeek(date) {
+  const status = $("#status");
+  status.className = "status"; status.textContent = "Loading menu…";
+  try {
+    const wk = await api(`/api/week?date=${date}&mode=${state.mode}`);
+    state.week = wk;
+    const dates = wk.days.map((d) => d.date);
+    state.selected = dates.includes(date) ? date : dates.includes(state.today) ? state.today : dates[0] || date;
+    status.textContent = wk.missing ? `🕑 The menu for week ${wk.week} is not published yet.` : "";
+    render();
+  } catch (e) {
+    status.className = "status error";
+    status.textContent = "Could not load the menu: " + e.message;
+  }
+}
+
+async function loadTrend() {
+  const el = $("#trend");
+  el.innerHTML = '<div class="muted">Loading…</div>';
+  try {
+    renderTrend(await api(`/api/trend?mode=${state.mode}`));
+  } catch (e) {
+    el.innerHTML = `<div class="status error">${esc(e.message)}</div>`;
+  }
+}
+
+// ---------------------------------------------------------------- rendering
+function render() {
+  const wk = state.week;
+  $("#weekTitle").textContent = `Week ${wk.week} · ${wk.year}`;
+  const start = wk.week_start, end = addDays(start, 6);
+  $("#weekRange").textContent = `${fmtDay(start, { day: "2-digit", month: "short" })} – ${fmtDay(end, { day: "2-digit", month: "short", year: "numeric" })}`;
+  renderTabs(); renderHero(); renderDishes(); renderOverview();
+}
+
+function visibleItems(items) {
+  return items.filter((i) => !(state.hideNight && i.night));
+}
+
+function statBar(stats, cls = "bar") {
+  const t = stats.total || 1;
+  const seg = (k, c) => stats[k] ? `<div class="seg-${c}" style="width:${(100 * stats[k]) / t}%"></div>` : "";
+  return `<div class="${cls}">${seg("halal", "green")}${seg("doubtful", "orange")}${seg("haram", "red")}${seg("unknown", "grey")}</div>`;
+}
+
+function renderTabs() {
+  $("#dayTabs").innerHTML = state.week.days.map((d) => {
+    const hasFav = d.items.some((i) => state.favs.has(favKey(i)));
+    return `<button class="daytab ${d.date === state.selected ? "active" : ""}" data-date="${d.date}">
+      ${d.date === state.today ? '<span class="today-dot">TODAY</span>' : ""}
+      ${hasFav ? '<span class="fav-dot" title="A favourite dish is served">❤️</span>' : ""}
+      <div class="d">${esc(d.weekday.slice(0, 3))}</div>
+      <div class="dt">${fmtDay(d.date, { day: "2-digit", month: "2-digit" })} · ✅ ${d.stats.halal}/${d.stats.total}</div>
+      ${statBar(d.stats)}
+    </button>`;
+  }).join("");
+}
+
+function selectedDay() {
+  return state.week?.days.find((d) => d.date === state.selected);
+}
+
+function renderHero() {
+  const hero = $("#hero");
+  const day = selectedDay();
+  if (!day) { hero.innerHTML = '<div class="empty">No menu for this day.</div>'; return; }
+  const s = day.stats;
+  const best = day.best && day.items.find((i) => i.id === day.best.id);
+  const when = day.date === state.today ? "Today" : day.weekday;
+  const favsHere = [...new Set(day.items.filter((i) => state.favs.has(favKey(i))).map(nameOf))];
+  const upcomingFavs = state.week.days
+    .filter((d) => d.date > state.selected)
+    .flatMap((d) => d.items.filter((i) => state.favs.has(favKey(i))).map((i) => `${nameOf(i)} (${d.weekday})`));
+  hero.innerHTML = `
+    <div>
+      <div class="muted">${esc(fmtDay(day.date, { weekday: "long", day: "numeric", month: "long", year: "numeric" }))} · ${esc(state.week.store)}</div>
+      <div class="big">${esc(when)}: <span class="n">${s.halal}</span> of ${s.total} dishes are halal-friendly</div>
+      <div class="counts">
+        <span class="count green">✅ ${s.halal} halal-friendly</span>
+        <span class="count orange">⚠️ ${s.doubtful} doubtful</span>
+        <span class="count red">❌ ${s.haram} not halal</span>
+        ${s.unknown ? `<span class="count grey">❔ ${s.unknown} unknown</span>` : ""}
+      </div>
+      ${favsHere.length ? `<div>❤️ Your favourite <b>${esc(favsHere.join(", "))}</b> is on the menu!</div>` : ""}
+      ${upcomingFavs.length ? `<div class="muted">❤️ Coming up: ${esc(upcomingFavs.slice(0, 3).join(", "))}</div>` : ""}
+      <div class="actions">
+        <button class="pill-btn primary" id="copySummary">📋 Copy summary</button>
+        <button class="pill-btn" id="askBtn">🗣️ Ask the kitchen</button>
+        <a class="pill-btn" href="${esc(state.week.portal_url)}" target="_blank" rel="noopener" style="text-decoration:none">🔗 Official menu</a>
+      </div>
+    </div>
+    <div>${best ? `
+      <div class="best">
+        ${best.picture ? `<img src="${esc(best.picture)}" alt="" loading="lazy" />` : ""}
+        <div><div class="lbl">⭐ Best halal pick</div><div class="nm">${esc(nameOf(best))}</div>
+        <div class="why">${esc(catOf(best))} · ${esc(day.best.reason)}${best.kcal ? ` · ${best.kcal} kcal` : ""}</div></div>
+      </div>` : '<div class="best" style="background:var(--orange-bg)"><div><div class="lbl" style="color:var(--orange)">No clear halal pick</div><div class="why">Check the doubtful dishes or ask the kitchen.</div></div></div>'}
+    </div>`;
+  $("#copySummary").onclick = () => copyText(summaryText(day), "Summary copied – paste it into Teams/WhatsApp");
+  $("#askBtn").onclick = () => openAsk(day);
+}
+
+function dishCard(i, dayLabel) {
+  const c = COLORS[i.verdict];
+  const isBest = selectedDay()?.best?.id === i.id && !dayLabel;
+  const fav = state.favs.has(favKey(i));
+  const photo = i.picture ? `<img class="photo" src="${esc(i.picture)}" alt="" loading="lazy" />` : `<div class="photo">🍽️</div>`;
+  const alt = altName(i) && altName(i) !== nameOf(i) ? `<div class="alt">${esc(altName(i))}</div>` : "";
+  const findings = i.findings.map((f) => `<li class="${f.severity}"><span>${SEV_ICON[f.severity]}</span><span>${esc(f.text)}</span></li>`).join("");
+  const allergens = i.allergens.map((a) => `<span class="allergen" title="${esc(a.name)}">${esc(a.label)}</span>`).join("");
+  const nutr = [i.kcal ? `🔥 ${i.kcal} kcal` : "", i.protein ? `💪 ${Math.round(i.protein)} g protein` : ""].filter(Boolean).join(" · ");
+  return `<article class="card dish ${c}">
+    <div class="top">${photo}
+      <div class="meta">
+        <div class="cat"><span>${dayLabel ? esc(dayLabel) + " · " : ""}${esc(catOf(i))}${i.sold_out ? '<span class="badge sold">SOLD OUT</span>' : ""}</span>
+          <button class="fav ${fav ? "on" : ""}" data-fav="${esc(favKey(i))}" title="Favourite">❤️</button></div>
+        <div class="name">${esc(nameOf(i))}${isBest ? '<span class="badge best-b">⭐ BEST PICK</span>' : ""}</div>
+        ${alt}
+        <span class="pill ${c}">${i.emoji} ${esc(i.label)}</span>
+      </div>
+    </div>
+    ${findings ? `<ul class="findings">${findings}</ul>` : ""}
+    <div class="foot"><span>${nutr}</span><span>${allergens}</span></div>
+  </article>`;
+}
+
+function renderDishes() {
+  const el = $("#dishes");
+  const q = state.search.trim().toLowerCase();
+  let rows = [];
+  if (q) {
+    for (const d of state.week.days)
+      for (const i of visibleItems(d.items))
+        if ((i.name_de + " " + i.name_en + " " + i.category).toLowerCase().includes(q)) rows.push([i, d.weekday.slice(0, 3)]);
+  } else {
+    const day = selectedDay();
+    rows = day ? visibleItems(day.items).map((i) => [i, null]) : [];
+  }
+  rows = rows.filter(([i]) =>
+    state.filter === "all" ? true : state.filter === "fav" ? state.favs.has(favKey(i)) : i.verdict === state.filter);
+  const order = { halal: 0, unknown: 1, doubtful: 2, haram: 3 };
+  if (state.filter === "all" && !q) rows.sort((a, b) => order[a[0].verdict] - order[b[0].verdict]);
+  el.innerHTML = rows.length ? rows.map(([i, d]) => dishCard(i, d)).join("") : '<div class="card empty">No dishes match this filter.</div>';
+}
+
+function renderOverview() {
+  $("#weekOverview").innerHTML = state.week.days.map((d) =>
+    `<div class="ov-row" data-date="${d.date}"><span class="ov-day">${esc(d.weekday)}</span>${statBar(d.stats, "ov-bar")}<span class="ov-pct">${d.stats.halal_pct}%</span></div>`
+  ).join("") + (state.week.stats ? `<p class="muted" style="margin:10px 0 0">Week total: <b>${state.week.stats.halal}</b> of ${state.week.stats.total} unique dishes halal-friendly (${state.week.stats.halal_pct}%).</p>` : "");
+}
+
+function renderTrend(data) {
+  const W = 560, H = 190, pad = 24, n = data.length, bw = (W - pad * 2) / n;
+  const bars = data.map((w, k) => {
+    const x = pad + k * bw + 6, width = bw - 12, h = H - 50;
+    if (!w.total) return `<text x="${x + width / 2}" y="${H - 30}" text-anchor="middle">–</text><text x="${x + width / 2}" y="${H - 8}" text-anchor="middle">W${w.week}</text>`;
+    let y = 16; const parts = [];
+    for (const [key, col] of [["halal", "var(--green)"], ["doubtful", "var(--orange)"], ["haram", "var(--red)"], ["unknown", "var(--grey)"]]) {
+      const hh = (h * (w[key] || 0)) / w.total;
+      if (hh > 0) parts.push(`<rect x="${x}" y="${y}" width="${width}" height="${hh}" fill="${col}" rx="2"><title>${key}: ${w[key]}</title></rect>`);
+      y += hh;
+    }
+    const cur = w.week === state.week?.week && w.year === state.week?.year;
+    return `<g class="tw" data-date="${w.week_start}" style="cursor:pointer">${parts.join("")}
+      <text x="${x + width / 2}" y="11" text-anchor="middle" font-weight="700">${w.halal_pct}%</text>
+      <text x="${x + width / 2}" y="${H - 8}" text-anchor="middle" ${cur ? 'font-weight="700"' : ""}>W${w.week}</text></g>`;
+  }).join("");
+  $("#trend").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Halal-friendly share per week">${bars}</svg>
+    <div class="muted" style="font-size:12px">Share of unique dishes per week: <span style="color:var(--green)">■</span> halal-friendly <span style="color:var(--orange)">■</span> doubtful <span style="color:var(--red)">■</span> not halal. Click a bar to open that week.</div>`;
+  document.querySelectorAll("#trend .tw").forEach((g) => g.addEventListener("click", () => loadWeek(g.dataset.date)));
+}
+
+// ---------------------------------------------------------------- features
+function summaryText(day) {
+  const by = (v) => [...new Map(visibleItems(day.items).filter((i) => i.verdict === v).map((i) => [favKey(i), i])).values()];
+  const line = (i) => `• ${nameOf(i)} (${catOf(i)})`;
+  const best = day.best && day.items.find((i) => i.id === day.best.id);
+  const parts = [`🥗 Halal check – ${fmtDay(day.date, { weekday: "long", day: "2-digit", month: "2-digit" })} – ${state.week.store}`];
+  const h = by("halal"), d = by("doubtful"), x = by("haram");
+  if (h.length) parts.push("", "✅ Halal-friendly:", ...h.map(line));
+  if (d.length) parts.push("", "⚠️ Doubtful:", ...d.map((i) => `${line(i)} – ${i.findings.find((f) => f.severity === "doubtful")?.text || ""}`));
+  if (x.length) parts.push("", "❌ Not halal:", ...x.map(line));
+  if (best) parts.push("", `⭐ Best pick: ${nameOf(best)}`);
+  return parts.join("\n");
+}
+
+function openAsk(day) {
+  const qs = [...new Set(visibleItems(day.items).flatMap((i) => i.findings.filter((f) => f.ask && f.severity !== "ok").map((f) => f.ask)))];
+  $("#askList").innerHTML = qs.length ? qs.map((q) => `<li>${esc(q)}</li>`).join("") : "<li>Nothing to ask – no doubtful dishes today 🎉</li>";
+  $("#copyAsk").onclick = () => copyText("Hallo! Kurze Frage zum heutigen Menü:\n" + qs.map((q) => "- " + q).join("\n") + "\nDanke!", "Questions copied");
+  $("#askDialog").showModal();
+}
+
+async function copyText(text, msg) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+  }
+  toast(msg);
+}
+
+// ---------------------------------------------------------------- settings (standalone version only)
+function setStoreLink(cfg) {
+  $("#storeLink").textContent = `${cfg.store_name} · ${cfg.menu_name}`;
+  $("#storeLink").href = cfg.portal_url;
+}
+
+function shareUrl() {
+  const m = window.LocalApi.settings.menu;
+  const u = new URL(location.href);
+  u.search = new URLSearchParams({ menu: m.id, store: m.store, name: m.menu }).toString();
+  return u.toString();
+}
+
+async function openSettings() {
+  const L = window.LocalApi;
+  let chosen = L.settings.menu;
+  const cur = () => { $("#curCanteen").textContent = `${chosen.store} · ${chosen.menu}`; };
+  cur();
+  $("#avoidInput").value = L.settings.avoid.join(", ");
+  const hosted = location.protocol.startsWith("http");
+  $("#copyLink").hidden = !hosted;
+  $("#shareHint").innerHTML = hosted
+    ? "Copy a link that opens this page with the selected canteen."
+    : "Just send this <b>HTML file</b> to colleagues (Teams, e-mail, USB…). It opens in any browser and loads the live menu. Nothing needs to be installed.";
+  $("#copyLink").onclick = () => copyText(shareUrl(), "Link copied");
+  const results = $("#canteenResults");
+  const search = async () => {
+    results.innerHTML = '<span class="muted">Searching…</span>';
+    try {
+      const hits = (await L.findMenus($("#canteenSearch").value)).slice(0, 60);
+      results.innerHTML = hits.length ? hits.map((h, k) =>
+        `<button type="button" data-k="${k}">${esc(h.store)} · ${esc(h.menu)} <small>${esc(h.city || "")}</small></button>`).join("")
+        : '<span class="muted">No canteen found.</span>';
+      results.querySelectorAll("button").forEach((b) => (b.onclick = () => {
+        const h = hits[b.dataset.k]; chosen = { id: h.id, store: h.store, menu: h.menu }; cur();
+        results.querySelectorAll("button").forEach((x) => (x.style.borderColor = x === b ? "var(--accent)" : ""));
+      }));
+    } catch (e) { results.innerHTML = `<span class="status error">${esc(e.message)}</span>`; }
+  };
+  $("#canteenSearch").oninput = () => { clearTimeout(search._t); search._t = setTimeout(search, 250); };
+  $("#saveSettings").onclick = async () => {
+    L.settings.menu = chosen;
+    L.settings.avoid = $("#avoidInput").value.split(",").map((s) => s.trim()).filter(Boolean);
+    $("#settingsDialog").close();
+    setStoreLink(await api("/api/config"));
+    loadWeek(state.selected || state.today); loadTrend();
+    toast("Settings saved");
+  };
+  $("#settingsDialog").showModal();
+  if (!results.innerHTML) search();
+}
+
+// ---------------------------------------------------------------- events
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  $("#themeBtn").textContent = t === "dark" ? "☀️" : "🌙";
+  store.set("theme", t);
+}
+function applyLang() {
+  document.querySelectorAll("#langSeg button").forEach((b) => b.classList.toggle("active", b.dataset.lang === state.lang));
+}
+
+document.addEventListener("click", (e) => {
+  const tab = e.target.closest(".daytab, .ov-row");
+  if (tab) { state.selected = tab.dataset.date; state.search = ""; $("#search").value = ""; renderTabs(); renderHero(); renderDishes(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+  const fav = e.target.closest(".fav");
+  if (fav) {
+    const k = fav.dataset.fav;
+    state.favs.has(k) ? state.favs.delete(k) : state.favs.add(k);
+    store.set("favs", [...state.favs]);
+    toast(state.favs.has(k) ? "❤️ Added to favourites – you'll see when it's served" : "Removed from favourites");
+    renderTabs(); renderHero(); renderDishes();
+  }
+  const chip = e.target.closest("#filterChips .chip");
+  if (chip) {
+    state.filter = chip.dataset.filter;
+    document.querySelectorAll("#filterChips .chip").forEach((c) => c.classList.toggle("active", c === chip));
+    renderDishes();
+  }
+  const lb = e.target.closest("#langSeg button");
+  if (lb) { state.lang = lb.dataset.lang; store.set("lang", state.lang); applyLang(); render(); }
+});
+
+$("#mode").addEventListener("change", (e) => {
+  state.mode = e.target.value; store.set("mode", state.mode);
+  loadWeek(state.selected || state.today); loadTrend();
+});
+$("#hideNight").addEventListener("change", (e) => { state.hideNight = e.target.checked; store.set("hideNight", state.hideNight); renderDishes(); });
+$("#search").addEventListener("input", (e) => { state.search = e.target.value; renderDishes(); });
+$("#prevWeek").onclick = () => loadWeek(addDays(state.week?.week_start || state.today, -7));
+$("#nextWeek").onclick = () => loadWeek(addDays(state.week?.week_start || state.today, 7));
+$("#todayBtn").onclick = () => loadWeek(state.today);
+$("#themeBtn").onclick = () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+
+(async function init() {
+  applyTheme(store.get("theme", matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  applyLang();
+  $("#hideNight").checked = state.hideNight;
+  try {
+    const cfg = await api("/api/config");
+    state.today = cfg.today;
+    state.mode = state.mode || cfg.default_mode || "standard";
+    setStoreLink(cfg);
+    if (cfg.standalone) { $("#settingsBtn").hidden = false; $("#settingsBtn").onclick = openSettings; }
+  } catch { state.mode = state.mode || "standard"; }
+  $("#mode").value = state.mode;
+  await loadWeek(state.today);
+  loadTrend();
+})();
+
+</script>
+</body>
+</html>
