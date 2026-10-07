@@ -155,6 +155,11 @@ select, input[type=search] {
 .legend ul { margin: 0 0 8px; padding-left: 18px; }
 .legend li { margin: 4px 0; }
 .disclaimer { background: var(--orange-bg); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 0; }
+.welcome { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 14px; background: var(--green-bg); border-color: transparent; }
+.welcome[hidden] { display: none; }
+.reminder-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+.reminder-row input[type=time] { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px; font: inherit; margin-left: 6px; }
+.steps { margin: 8px 0 14px; padding-left: 20px; }
 
 dialog { border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--text); max-width: 640px; width: 92vw; }
 dialog::backdrop { background: rgba(0,0,0,.4); }
@@ -218,6 +223,16 @@ dialog input[type=text], dialog input[type=search] { background: var(--card); co
 
     <nav id="dayTabs" class="daytabs"></nav>
 
+    <section id="welcome" class="card welcome" hidden>
+      <div>
+        <b>👋 Welcome!</b> Every day this page checks the canteen menu for you:
+        <span class="pill green">✅ halal-friendly</span> <span class="pill orange">⚠️ doubtful</span> <span class="pill red">❌ not halal</span>.
+        It always shows the live menu, so just bookmark it.
+        <div class="muted" style="margin-top:4px">Tip: <b>📅 Daily reminder</b> adds a reminder to your calendar · 📱 on your phone use “Add to Home screen”.</div>
+      </div>
+      <button id="welcomeClose" class="icon-btn" title="Close">✕</button>
+    </section>
+
     <section id="hero" class="hero card"></section>
 
     <section class="toolbar">
@@ -260,6 +275,26 @@ dialog input[type=text], dialog input[type=search] { background: var(--card); co
       <p class="disclaimer">⚠️ The canteen does not publish halal certification. This is an automated screening of the published menu data, not a religious ruling. Cross-contamination (shared grills, fryers, utensils) cannot be detected. When in doubt, ask the kitchen staff – use the <b>🗣️ Ask the kitchen</b> button.</p>
     </section>
   </main>
+
+  <dialog id="reminderDialog">
+    <form method="dialog">
+      <h2>📅 Daily reminder</h2>
+      <p class="muted">Get a reminder in your Outlook (or phone) calendar with a link to this page. Nothing is installed.</p>
+      <div class="reminder-row">
+        <label>Time <input id="remTime" type="time" value="10:30" /></label>
+        <label class="toggle"><input id="remWeekend" type="checkbox" /> Also on weekends</label>
+      </div>
+      <ol class="steps">
+        <li>Click <b>Download reminder</b>.</li>
+        <li>Open the downloaded file. Outlook opens it.</li>
+        <li>Click <b>Save &amp; Close</b>. That's it!</li>
+      </ol>
+      <div class="dialog-actions">
+        <button type="button" id="remDownload" class="pill-btn primary">⬇️ Download reminder</button>
+        <button class="pill-btn ghost">Close</button>
+      </div>
+    </form>
+  </dialog>
 
   <dialog id="askDialog">
     <form method="dialog">
@@ -669,6 +704,7 @@ dialog input[type=text], dialog input[type=search] { background: var(--card); co
         if (hit) { resolved[m.id] = hit; Object.assign(m, { store: hit.store, menu: hit.menu }); }
       }
       return { menu_id: m.id, store_name: m.store, menu_name: m.menu, portal_url: portalUrl(m), default_mode: "standard",
+               website_url: "https://anis1937.github.io/halal-menu-check/",
                today: isoDate(new Date()), avoid_keywords: settings.avoid, standalone: true };
     }
     if (url.pathname === "/api/week") return weekReport(q.get("date") ? parseDate(q.get("date")) : new Date(), mode);
@@ -815,6 +851,7 @@ function renderHero() {
       <div class="actions">
         <button class="pill-btn primary" id="copySummary">📋 Copy summary</button>
         <button class="pill-btn" id="askBtn">🗣️ Ask the kitchen</button>
+        <button class="pill-btn" id="reminderBtn">📅 Daily reminder</button>
         <a class="pill-btn" href="${esc(state.week.portal_url)}" target="_blank" rel="noopener" style="text-decoration:none">🔗 Official menu</a>
       </div>
     </div>
@@ -827,6 +864,7 @@ function renderHero() {
     </div>`;
   $("#copySummary").onclick = () => copyText(summaryText(day), "Summary copied – paste it into Teams/WhatsApp");
   $("#askBtn").onclick = () => openAsk(day);
+  $("#reminderBtn").onclick = openReminder;
 }
 
 function dishCard(i, dayLabel) {
@@ -981,6 +1019,70 @@ async function openSettings() {
   if (!results.innerHTML) search();
 }
 
+// ---------------------------------------------------------------- daily calendar reminder (.ics)
+function siteUrl() {
+  const hosted = location.protocol === "https:" && !/(^|\.)localhost$/.test(location.hostname);
+  return hosted ? location.origin + location.pathname : state.cfg?.website_url || location.href;
+}
+
+function buildIcs(time, weekends) {
+  const [hh, mm] = time.split(":").map(Number);
+  const p2 = (n) => String(n).padStart(2, "0");
+  const t = new Date();
+  const ymd = `${t.getFullYear()}${p2(t.getMonth() + 1)}${p2(t.getDate())}`;
+  const end = new Date(2000, 0, 1, hh, mm + 5);
+  const url = siteUrl();
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  // RFC 5545: escape text and fold lines longer than 75 octets
+  const escTxt = (s) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const fold = (line) => {
+    const bytes = new TextEncoder().encode(line);
+    if (bytes.length <= 75) return line;
+    const out = []; let cur = "", n = 0;
+    for (const ch of line) {
+      const b = new TextEncoder().encode(ch).length;
+      if (n + b > (out.length ? 74 : 75)) { out.push(cur); cur = ""; n = 0; }
+      cur += ch; n += b;
+    }
+    out.push(cur);
+    return out.join("\r\n ");
+  };
+  const lines = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Halal Menu Check//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+    "BEGIN:VTIMEZONE", "TZID:Europe/Vienna",
+    "BEGIN:DAYLIGHT", "TZOFFSETFROM:+0100", "TZOFFSETTO:+0200", "TZNAME:CEST", "DTSTART:19700329T020000", "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU", "END:DAYLIGHT",
+    "BEGIN:STANDARD", "TZOFFSETFROM:+0200", "TZOFFSETTO:+0100", "TZNAME:CET", "DTSTART:19701025T030000", "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU", "END:STANDARD",
+    "END:VTIMEZONE",
+    "BEGIN:VEVENT",
+    `UID:halal-menu-check-daily-reminder@halal-menu-check`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART;TZID=Europe/Vienna:${ymd}T${p2(hh)}${p2(mm)}00`,
+    `DTEND;TZID=Europe/Vienna:${ymd}T${p2(end.getHours())}${p2(end.getMinutes())}00`,
+    `RRULE:FREQ=WEEKLY;BYDAY=${weekends ? "MO,TU,WE,TH,FR,SA,SU" : "MO,TU,WE,TH,FR"}`,
+    `SUMMARY:${escTxt("🥗 Halal menu check")}`,
+    `DESCRIPTION:${escTxt(`See today's halal-friendly dishes in the canteen:\n${url}`)}`,
+    `LOCATION:${escTxt(url)}`,
+    `URL:${url}`,
+    "TRANSP:TRANSPARENT", "X-MICROSOFT-CDO-BUSYSTATUS:FREE", "CLASS:PUBLIC",
+    "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${escTxt("Halal menu check")}`, "TRIGGER:PT0M", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR",
+  ];
+  return lines.map(fold).join("\r\n") + "\r\n";
+}
+
+function openReminder() {
+  $("#remDownload").onclick = () => {
+    const ics = buildIcs($("#remTime").value || "10:30", $("#remWeekend").checked);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+    a.download = "Halal-menu-reminder.ics";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    toast("Reminder downloaded – open it and click Save & Close");
+  };
+  $("#reminderDialog").showModal();
+}
+
 // ---------------------------------------------------------------- events
 function applyTheme(t) {
   document.documentElement.dataset.theme = t;
@@ -1029,12 +1131,15 @@ $("#themeBtn").onclick = () => applyTheme(document.documentElement.dataset.theme
   $("#hideNight").checked = state.hideNight;
   try {
     const cfg = await api("/api/config");
+    state.cfg = cfg;
     state.today = cfg.today;
     state.mode = state.mode || cfg.default_mode || "standard";
     setStoreLink(cfg);
     if (cfg.standalone) { $("#settingsBtn").hidden = false; $("#settingsBtn").onclick = openSettings; }
   } catch { state.mode = state.mode || "standard"; }
   $("#mode").value = state.mode;
+  if (!store.get("welcomed", false)) $("#welcome").hidden = false;
+  $("#welcomeClose").onclick = () => { $("#welcome").hidden = true; store.set("welcomed", true); };
   await loadWeek(state.today);
   loadTrend();
 })();
