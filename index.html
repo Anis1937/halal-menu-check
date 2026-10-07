@@ -160,6 +160,12 @@ select, input[type=search] {
 .reminder-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
 .reminder-row input[type=time] { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px; font: inherit; margin-left: 6px; }
 .steps { margin: 8px 0 14px; padding-left: 20px; }
+.rem-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
+.rem-opt { border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.rem-opt h3 { margin-top: 0; }
+.rem-opt .steps { font-size: 13px; }
+.small-link { font-size: 12px; color: var(--muted); display: inline-block; margin-top: 8px; }
+@media (max-width: 640px) { .rem-options { grid-template-columns: 1fr; } }
 
 dialog { border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); color: var(--text); max-width: 640px; width: 92vw; }
 dialog::backdrop { background: rgba(0,0,0,.4); }
@@ -228,7 +234,7 @@ dialog input[type=text], dialog input[type=search] { background: var(--card); co
         <b>👋 Welcome!</b> Every day this page checks the canteen menu for you:
         <span class="pill green">✅ halal-friendly</span> <span class="pill orange">⚠️ doubtful</span> <span class="pill red">❌ not halal</span>.
         It always shows the live menu, so just bookmark it.
-        <div class="muted" style="margin-top:4px">Tip: <b>📅 Daily reminder</b> adds a reminder to your calendar · 📱 on your phone use “Add to Home screen”.</div>
+        <div class="muted" style="margin-top:4px">Tip: <b>🔔 Daily reminder</b> gives you a Windows or calendar reminder · 📱 on your phone use “Add to Home screen”.</div>
       </div>
       <button id="welcomeClose" class="icon-btn" title="Close">✕</button>
     </section>
@@ -278,21 +284,35 @@ dialog input[type=text], dialog input[type=search] { background: var(--card); co
 
   <dialog id="reminderDialog">
     <form method="dialog">
-      <h2>📅 Daily reminder</h2>
-      <p class="muted">Get a reminder in your Outlook (or phone) calendar with a link to this page. Nothing is installed.</p>
+      <h2>🔔 Daily reminder</h2>
       <div class="reminder-row">
         <label>Time <input id="remTime" type="time" value="10:30" /></label>
         <label class="toggle"><input id="remWeekend" type="checkbox" /> Also on weekends</label>
       </div>
-      <ol class="steps">
-        <li>Click <b>Download reminder</b>.</li>
-        <li>Open the downloaded file. Outlook opens it.</li>
-        <li>Click <b>Save &amp; Close</b>. That's it!</li>
-      </ol>
-      <div class="dialog-actions">
-        <button type="button" id="remDownload" class="pill-btn primary">⬇️ Download reminder</button>
-        <button class="pill-btn ghost">Close</button>
+      <div class="rem-options">
+        <div class="rem-opt">
+          <h3>🔔 Windows notification</h3>
+          <p class="muted">A pop-up on this PC every day. Click it to open the menu.</p>
+          <ol class="steps">
+            <li>Click <b>Download</b>.</li>
+            <li>Open the downloaded file. If Windows asks, click <b>Keep</b> or <b>More info → Run anyway</b>.</li>
+            <li>Done: a test notification appears.</li>
+          </ol>
+          <button type="button" id="remWin" class="pill-btn primary">⬇️ Download</button>
+          <div><a href="#" id="remWinRemove" class="small-link">Remove the Windows reminder</a></div>
+        </div>
+        <div class="rem-opt">
+          <h3>📅 Outlook calendar</h3>
+          <p class="muted">A calendar reminder. It also shows on your phone if you use Outlook there.</p>
+          <ol class="steps">
+            <li>Click <b>Download</b>.</li>
+            <li>Open the file. Outlook opens it.</li>
+            <li>Click <b>Save &amp; Close</b>.</li>
+          </ol>
+          <button type="button" id="remDownload" class="pill-btn">⬇️ Download</button>
+        </div>
       </div>
+      <div class="dialog-actions"><button class="pill-btn ghost">Close</button></div>
     </form>
   </dialog>
 
@@ -851,7 +871,7 @@ function renderHero() {
       <div class="actions">
         <button class="pill-btn primary" id="copySummary">📋 Copy summary</button>
         <button class="pill-btn" id="askBtn">🗣️ Ask the kitchen</button>
-        <button class="pill-btn" id="reminderBtn">📅 Daily reminder</button>
+        <button class="pill-btn" id="reminderBtn">🔔 Daily reminder</button>
         <a class="pill-btn" href="${esc(state.week.portal_url)}" target="_blank" rel="noopener" style="text-decoration:none">🔗 Official menu</a>
       </div>
     </div>
@@ -1070,15 +1090,83 @@ function buildIcs(time, weekends) {
   return lines.map(fold).join("\r\n") + "\r\n";
 }
 
+// Windows reminder: a self-installing .cmd (batch + PowerShell) that registers a per-user scheduled task
+// showing a toast notification. No admin rights, no files left behind besides the task itself.
+const WIN_REMINDER_PS = [
+  "#PSSTART - Halal menu reminder installer (PowerShell part)",
+  "$ErrorActionPreference = 'Stop'",
+  "$Url = '__URL__'; $Time = '__TIME__'; $Days = @(__DAYS__); $DaysText = '__DAYSTEXT__'; $Remove = __REMOVE__",
+  "$TaskName = 'Halal menu reminder'",
+  "if ($Remove) {",
+  "  Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue",
+  "  Write-Host ''; Write-Host '  The halal menu reminder was removed from this PC.' -ForegroundColor Green",
+  "  return",
+  "}",
+  "$tpl = @'",
+  "if (__LATE__ -and (Get-Date).Hour -ge 15) { exit }",
+  "[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null",
+  "[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null",
+  "$x = New-Object Windows.Data.Xml.Dom.XmlDocument",
+  "$x.LoadXml('<toast launch=\"__URL__\" activationType=\"protocol\" duration=\"long\"><visual><binding template=\"ToastGeneric\"><text>__TITLE__</text><text>__TEXT__</text></binding></visual><actions><action content=\"Open menu\" activationType=\"protocol\" arguments=\"__URL__\"/><action content=\"Later\" activationType=\"system\" arguments=\"dismiss\"/></actions></toast>')",
+  "[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier('{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe').Show([Windows.UI.Notifications.ToastNotification]::new($x))",
+  "'@",
+  "function Enc($title, $text, $late) {",
+  "  $s = $tpl.Replace('__URL__', $Url).Replace('__TITLE__', $title).Replace('__TEXT__', $text).Replace('__LATE__', $late)",
+  "  [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s))",
+  "}",
+  "$daily = Enc '🥗 Halal menu check' 'See which dishes are halal-friendly today.' '$true'",
+  "$hello = Enc '✅ Reminder installed' \"You will get this reminder at $Time ($DaysText). Click to open the menu.\" '$false'",
+  "$action = New-ScheduledTaskAction -Execute 'conhost.exe' -Argument \"--headless powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand $daily\"",
+  "$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek $Days -At $Time",
+  "$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 5)",
+  "Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Description \"Shows a reminder to check the halal canteen menu: $Url\" -Force | Out-Null",
+  "Start-Process conhost.exe -ArgumentList '--headless', 'powershell.exe', '-NoProfile', '-EncodedCommand', $hello",
+  "Write-Host ''; Write-Host \"  Done! You will get a reminder at $Time ($DaysText).\" -ForegroundColor Green",
+  "Write-Host '  You can close this window. To remove it later, use \"Remove the Windows reminder\" on the website.'",
+];
+
+function buildWinReminder(time, weekends, remove = false) {
+  const days = weekends ? ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const ps = WIN_REMINDER_PS.join("\r\n")
+    .replace("__URL__", siteUrl().replace(/'/g, "''").replace(/&/g, "&amp;").replace(/"/g, "&quot;"))
+    .replace("__TIME__", time)
+    .replace("__DAYS__", days.map((d) => `'${d}'`).join(","))
+    .replace("__DAYSTEXT__", weekends ? "every day" : "Monday to Friday")
+    .replace("__REMOVE__", remove ? "$true" : "$false");
+  const bat = [
+    "@echo off",
+    `title Halal menu reminder - ${remove ? "remove" : "install"}`,
+    `echo ${remove ? "Removing" : "Installing"} the daily halal menu reminder...`,
+    "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"$s = Get-Content -LiteralPath '%~f0' -Raw -Encoding UTF8; Invoke-Expression $s.Substring($s.IndexOf('#PS' + 'START'))\"",
+    "echo.",
+    "pause",
+    "exit /b",
+  ];
+  return bat.join("\r\n") + "\r\n" + ps + "\r\n";
+}
+
+function download(name, text, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
 function openReminder() {
+  const time = () => $("#remTime").value || "10:30";
   $("#remDownload").onclick = () => {
-    const ics = buildIcs($("#remTime").value || "10:30", $("#remWeekend").checked);
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
-    a.download = "Halal-menu-reminder.ics";
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    download("Halal-menu-reminder.ics", buildIcs(time(), $("#remWeekend").checked), "text/calendar;charset=utf-8");
     toast("Reminder downloaded – open it and click Save & Close");
+  };
+  $("#remWin").onclick = () => {
+    download("Halal-menu-reminder.cmd", buildWinReminder(time(), $("#remWeekend").checked), "application/octet-stream");
+    toast("Downloaded – open the file to activate the reminder");
+  };
+  $("#remWinRemove").onclick = (e) => {
+    e.preventDefault();
+    download("Remove-halal-menu-reminder.cmd", buildWinReminder(time(), false, true), "application/octet-stream");
+    toast("Downloaded – open the file to remove the reminder");
   };
   $("#reminderDialog").showModal();
 }
